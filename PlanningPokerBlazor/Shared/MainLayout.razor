@@ -1,0 +1,33 @@
+﻿@using PlanningPokerBlazor.Components
+@inherits LayoutComponentBase
+
+<PageTitle>PlanningPokerBlazor</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu/>
+    </div>
+
+    <main>
+        <div class="top-row px-4 auth">
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank">About</a>
+        </div>
+
+        <article class="content px-4">
+            <DetailedErrorBoundary @ref="_detailedErrorBoundary">
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent>
+                    <p class="errorUI">@_detailedErrorBoundary.CurrentException?.Message</p>
+                    <button @onclick="() => _detailedErrorBoundary.Recover()">Ok</button>
+                </ErrorContent>
+            </DetailedErrorBoundary>
+        </article>
+    </main>
+</div>
+
+@code
+{
+    private DetailedErrorBoundary _detailedErrorBoundary;
+}

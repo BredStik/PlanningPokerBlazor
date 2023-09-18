@@ -1,0 +1,19 @@
+﻿<div style="position: absolute; bottom: 10px">
+<h1>Choose your card!</h1>
+<div class="card-container">
+<Card OnCardClicked="OnCardChosen" CardNumber="0"></Card>
+<Card OnCardClicked="OnCardChosen" CardNumber="1"></Card>
+<Card OnCardClicked="OnCardChosen" CardNumber="2"></Card>
+<Card OnCardClicked="OnCardChosen" CardNumber="3"></Card>
+<Card OnCardClicked="OnCardChosen" CardNumber="5"></Card>
+<Card OnCardClicked="OnCardChosen" CardNumber="8"></Card>
+<Card OnCardClicked="OnCardChosen" CardNumber="13"></Card>
+<Card OnCardClicked="OnCardChosen" CardNumber="21"></Card>    
+</div>
+</div>
+
+
+@code {
+    [Parameter]
+    public EventCallback<int> OnCardChosen { get; set; }
+}

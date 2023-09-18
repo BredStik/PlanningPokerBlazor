@@ -1,0 +1,89 @@
+﻿@page "/PokerGame/{Id:guid}"
+@using PlanningPokerBlazor.Data
+@using PlanningPokerBlazor.Components
+@inject GameTracker GameTracker
+
+<h3>PokerGame</h3>
+
+@if (_game == null)
+{
+    <h1>Loading...</h1>
+}
+else if (_game.Disposed)
+{
+    <h1>Game was closed because of inactivity</h1>
+}
+else
+{
+    <h4>@_game.Id</h4>
+    <div style="display: flex">
+    @foreach (var player in _game.Players)
+    {
+        <PlayerDisplay Player="player" CardState="_game.CardState" IsCurrentPlayer="player == _currentPlayer"></PlayerDisplay>
+    }
+    </div>
+}
+
+@if (_currentPlayer?.IsHost == true)
+{
+    <HostControls Game="_game"></HostControls>
+}
+
+@if (!joined)
+{
+    <div class="form-group">
+        <label>
+            Username:
+            <input @bind="userInput"/>
+        </label>
+    </div>
+    <button class="button" @onclick="Join">Join</button>
+}
+else if(_game.CardState != CardState.Shown)
+{
+    <ChooseCard OnCardChosen="ChooseCard"></ChooseCard> 
+}
+
+@code {
+
+    [Parameter]
+    public Guid Id { get; set; }
+
+    private bool joined = false;
+    private string? userInput;
+    //shared game state
+    private Data.PokerGame _game;
+    private Player _currentPlayer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _game = GameTracker.GetGame(Id);
+
+        if (_game == null)
+        {
+            throw new ApplicationException("Game was not found");
+        }
+
+        _game.StateChanged += (sender, args) =>
+        {
+            InvokeAsync(StateHasChanged);
+        };
+    }
+
+    private async Task Join()
+    {
+        var newPlayer = new Player(userInput, _game, _game.Players.Any() == false);
+        _game.AddPlayer(newPlayer);
+        _currentPlayer = newPlayer;
+        joined = true;
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+    }
+
+    private async Task ChooseCard(int card)
+    {
+        _game.PlayerChoosesCard(_currentPlayer, card);
+    }
+}

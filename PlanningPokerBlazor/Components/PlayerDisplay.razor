@@ -1,0 +1,37 @@
+﻿@using PlanningPokerBlazor.Data
+<div>
+<span>
+    @Player.DisplayName
+    @if (Player.IsHost)
+    {
+        <span> (host)</span>
+    }
+</span>
+
+
+@if (Player.ChosenCard.HasValue)
+{
+    if (CardState == CardState.Hidden && !IsCurrentPlayer)
+    {
+        <Card></Card>       
+    }
+    else
+    {
+        <Card CardNumber="Player.ChosenCard"></Card>
+    }
+}
+else
+{
+    <Card EmptyDisplay=""></Card>
+}
+</div>
+@code {
+    [Parameter]
+    public Player Player { get; set; }
+    
+    [Parameter]
+    public CardState CardState { get; set; }
+    
+    [Parameter]
+    public bool IsCurrentPlayer { get; set; }
+}

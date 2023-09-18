@@ -1,0 +1,18 @@
+﻿@page "/JoinGame"
+
+<div class="form-group">
+    <label>
+        Game Id:
+        <input @bind="GameId"/>
+    </label>
+</div>
+@if (GameId.HasValue)
+{
+    <NavLink href=@($"pokerGame/{GameId}")>Join game</NavLink>
+}
+
+@code{
+
+    private Guid? GameId { get; set; }
+
+}

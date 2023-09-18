@@ -1,0 +1,26 @@
+﻿<div @onclick="() => Click(CardNumber)" class="card">@(CardNumber?.ToString() ?? EmptyDisplay)</div>
+
+@code {
+    [Parameter]
+    public int? CardNumber { get; set; }
+    
+    [Parameter]
+    public bool ReadOnly { get; set; }
+    
+    [Parameter]
+    public bool Hidden { get; set; }
+
+    [Parameter]
+    public string EmptyDisplay { get; set; } = "?";
+    
+    [Parameter]
+    public EventCallback<int> OnCardClicked { get; set; }
+    
+    private async Task Click(int? card)
+    {
+        if (!ReadOnly && card.HasValue)
+        {
+            await OnCardClicked.InvokeAsync(card.Value);
+        }
+    }
+}

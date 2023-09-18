@@ -1,0 +1,27 @@
+﻿@page "/StartNewGame"
+@using PlanningPokerBlazor.Data
+@inject GameTracker GameTracker
+@inject ILoggerFactory LoggerFactory
+<h3>StartNewGame</h3>
+
+@if (_gameId == null || _gameId == Guid.Empty)
+{
+    <h1>Creating game...</h1>
+}
+else
+{
+    <h1>@_gameId</h1>
+    <NavLink href=@($"pokerGame/{_gameId}")>Go to game</NavLink>
+}
+
+@code {
+    private Guid? _gameId = null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _gameId = Guid.NewGuid();
+
+        GameTracker.Track(new Data.PokerGame(_gameId.Value, LoggerFactory.CreateLogger<Data.PokerGame>()));
+    }
+
+}

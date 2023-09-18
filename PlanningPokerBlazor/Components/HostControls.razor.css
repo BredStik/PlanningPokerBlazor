@@ -1,0 +1,10 @@
+﻿.button {
+    margin-right: 10px; /* Add some spacing between cards */
+    border: 1px solid #000; /* Add a border to the cards */
+    background-color: white; /* Set the background color of the cards */
+    text-align: center; /* Center the card content */
+    font-weight: bold;
+    font-size: 18px;
+    border-radius: 10px; /* Add rounded corners */
+    cursor: pointer;
+}

@@ -1,0 +1,13 @@
+.card {
+    width: 66px; /* Set the width of each card */
+    height: 100px; /* Set the height of each card */
+    margin-right: 10px; /* Add some spacing between cards */
+    border: 1px solid #000; /* Add a border to the cards */
+    background-color: white; /* Set the background color of the cards */
+    text-align: center; /* Center the card content */
+    line-height: 100px; /* Vertically center the card content */
+    font-weight: bold;
+    font-size: 36px;
+    border-radius: 10px; /* Add rounded corners */
+    cursor: pointer;
+}
