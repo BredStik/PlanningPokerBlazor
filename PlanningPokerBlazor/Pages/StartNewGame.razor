@@ -1,6 +1,8 @@
 ﻿@page "/StartNewGame"
 @using PlanningPokerBlazor.Data
-@inject GameTracker GameTracker
+@using global::Orleans
+@using PlanningPokerBlazor.Orleans
+@inject IGrainFactory GrainFactory
 @inject ILoggerFactory LoggerFactory
 <h3>StartNewGame</h3>
 
@@ -21,7 +23,12 @@ else
     {
         _gameId = Guid.NewGuid();
 
-        GameTracker.Track(new Data.PokerGame(_gameId.Value, LoggerFactory.CreateLogger<Data.PokerGame>()));
+        var gameTracker = GrainFactory.GetGrain<IGameTrackerGrain>("GameTracker");
+        var game = GrainFactory.GetGrain<IPokerGameGrain>(_gameId.Value);
+
+        await gameTracker.Track(_gameId.Value);
+        
+        //GameTracker.Track(new Data.PokerGame(_gameId.Value, LoggerFactory.CreateLogger<Data.PokerGame>()));
     }
 
 }

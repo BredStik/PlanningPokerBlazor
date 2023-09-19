@@ -1,7 +1,14 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using Orleans.Hosting;
 using PlanningPokerBlazor.Data;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseOrleans(builder =>
+{
+    builder.UseLocalhostClustering();
+    builder.AddMemoryGrainStorage("games");
+});
 
 builder.Services.AddAuthorization(options =>
 {
@@ -19,7 +26,7 @@ builder.Services.AddResponseCompression(opts =>
     opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(
         new[] { "application/octet-stream" });
 });
-builder.Services.AddSingleton<GameTracker>();
+//builder.Services.AddSingleton<GameTracker>();
 
 var app = builder.Build();
 
@@ -45,11 +52,11 @@ app.MapFallbackToPage("/_Host");
 
 app.MapHub<GameHub>("/gamehub");
 
-app.MapGet("/resetgametracker", (GameTracker tracker) =>
+/*app.MapGet("/resetgametracker", (GameTracker tracker) =>
 {
     tracker.Reset();
     return Results.StatusCode(StatusCodes.Status202Accepted);
-});
+});*/
 
 
 app.Run();

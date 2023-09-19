@@ -1,7 +1,8 @@
 ﻿@page "/PokerGame/{Id:guid}"
-@using PlanningPokerBlazor.Data
 @using PlanningPokerBlazor.Components
-@inject GameTracker GameTracker
+@using global::Orleans
+@using PlanningPokerBlazor.Orleans
+@inject IGrainFactory GrainFactory
 
 <h3>PokerGame</h3>
 
@@ -9,24 +10,24 @@
 {
     <h1>Loading...</h1>
 }
-else if (_game.Disposed)
+else if (GameState?.Disposed == true)
 {
     <h1>Game was closed because of inactivity</h1>
 }
-else
+else if(GameState != null)
 {
-    <h4>@_game.Id</h4>
+    <h4>@GameState?.Id</h4>
     <div style="display: flex">
-    @foreach (var player in _game.Players)
+    @foreach (var player in GameState.Players)
     {
-        <PlayerDisplay Player="player" CardState="_game.CardState" IsCurrentPlayer="player == _currentPlayer"></PlayerDisplay>
+        <PlayerDisplay Player="player" CardState="GameState.CardState" IsCurrentPlayer="player.Id == _currentPlayer?.Id"></PlayerDisplay>
     }
     </div>
 }
 
 @if (_currentPlayer?.IsHost == true)
 {
-    <HostControls Game="_game"></HostControls>
+    <HostControls Game="_game" GameState="GameState"></HostControls>
 }
 
 @if (!joined)
@@ -39,7 +40,7 @@ else
     </div>
     <button class="button" @onclick="Join">Join</button>
 }
-else if(_game.CardState != CardState.Shown)
+else if(GameState.CardState != Orleans.CardState.Shown)
 {
     <ChooseCard OnCardChosen="ChooseCard"></ChooseCard> 
 }
@@ -52,38 +53,63 @@ else if(_game.CardState != CardState.Shown)
     private bool joined = false;
     private string? userInput;
     //shared game state
-    private Data.PokerGame _game;
-    private Player _currentPlayer;
+    private IPokerGameGrain _game;
+    private PokerGameState GameState { get; set; }
+    private Orleans.Player _currentPlayer;
+    private Orleans.PokerGameObserver _observer;
+    private Orleans.IPokerGameObserver _observerRef;
 
     protected override async Task OnInitializedAsync()
     {
-        _game = GameTracker.GetGame(Id);
+        //todo: use StreamProvider to subscribe to Grain state changes
+        //see: https://github.com/BredStik/rrod/blob/91e854ea3c420b70678edca5389076c5cebff936/src/Webapp/Controllers/ActionsHub.cs#L13
+        
+        _game = GrainFactory.GetGrain<IPokerGameGrain>(Id);
 
         if (_game == null)
         {
             throw new ApplicationException("Game was not found");
         }
 
-        _game.StateChanged += (sender, args) =>
-        {
-            InvokeAsync(StateHasChanged);
-        };
+        GameState = await _game.GetState();
+
+        _observer = new PokerGameObserver(OnStateChanged);
+
+        _observerRef = await GrainFactory.CreateObjectReference<IPokerGameObserver>(_observer);
+
+        await _game.Subscribe(_observerRef);
+
+        await base.OnInitializedAsync();
+    }
+
+    private async Task OnStateChanged(PokerGameState state)
+    {
+        GameState = state;
+
+        _currentPlayer = GameState.Players.FirstOrDefault(x => x.Id == _currentPlayer?.Id);
+        
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task Join()
     {
-        var newPlayer = new Player(userInput, _game, _game.Players.Any() == false);
-        _game.AddPlayer(newPlayer);
+        var newPlayer = new Orleans.Player(userInput);
+        
+        await _game.AddPlayer(newPlayer);
+        
         _currentPlayer = newPlayer;
+        
         joined = true;
     }
 
     public async ValueTask DisposeAsync()
     {
+        await _game.Unsubscribe(_observerRef);
     }
 
     private async Task ChooseCard(int card)
     {
-        _game.PlayerChoosesCard(_currentPlayer, card);
+        await _game.PlayerChoosesCard(_currentPlayer.Id, card);
     }
 }
+

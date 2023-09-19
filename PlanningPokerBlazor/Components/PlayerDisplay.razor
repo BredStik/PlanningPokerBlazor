@@ -11,7 +11,7 @@
 
 @if (Player.ChosenCard.HasValue)
 {
-    if (CardState == CardState.Hidden && !IsCurrentPlayer)
+    if (CardState == Orleans.CardState.Hidden && !IsCurrentPlayer)
     {
         <Card></Card>       
     }
@@ -27,10 +27,10 @@ else
 </div>
 @code {
     [Parameter]
-    public Player Player { get; set; }
+    public Orleans.Player Player { get; set; }
     
     [Parameter]
-    public CardState CardState { get; set; }
+    public Orleans.CardState CardState { get; set; }
     
     [Parameter]
     public bool IsCurrentPlayer { get; set; }

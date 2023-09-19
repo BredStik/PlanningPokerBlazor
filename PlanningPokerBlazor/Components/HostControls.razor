@@ -1,25 +1,29 @@
 ﻿@using PlanningPokerBlazor.Data
-@if (Game?.Players.All(x => x.ChosenCard.HasValue) == true && Game?.CardState == CardState.Hidden)
+@using PlanningPokerBlazor.Orleans
+@if (GameState.Players.All(x => x.ChosenCard.HasValue) == true && GameState.CardState == Orleans.CardState.Hidden)
 {
     <button class="button" @onclick="RevealCards">Reveal cards!</button>
 }
 
-@if (Game?.CardState == CardState.Shown)
+@if (GameState.CardState == Orleans.CardState.Shown)
 {
     <button class="button" @onclick="ResetGame">Reset game!</button>
 }
 
 @code {
     [Parameter]
-    public PokerGame Game { get; set; }
+    public Orleans.IPokerGameGrain Game { get; set; }
+
+    [Parameter]
+    public PokerGameState GameState { get; set; }
 
     private async Task RevealCards()
     {
-        Game.ShowCards();
+        await Game.ShowCards();
     }
 
     private async Task ResetGame()
     {
-        Game.Reset();
+        await Game.Reset();
     }
 }
