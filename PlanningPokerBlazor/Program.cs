@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.ResponseCompression;
+using Orleans;
 using Orleans.Hosting;
 using PlanningPokerBlazor.Data;
 
@@ -8,6 +9,7 @@ builder.Host.UseOrleans(builder =>
 {
     builder.UseLocalhostClustering();
     builder.AddMemoryGrainStorage("games");
+    builder.UseDashboard(opt => opt.HostSelf = true);
 });
 
 builder.Services.AddAuthorization(options =>
@@ -58,5 +60,6 @@ app.MapHub<GameHub>("/gamehub");
     return Results.StatusCode(StatusCodes.Status202Accepted);
 });*/
 
+app.Map("/dashboard", x => x.UseOrleansDashboard());
 
 app.Run();

@@ -30,7 +30,7 @@ else if(GameState != null)
     <HostControls Game="_game" GameState="GameState"></HostControls>
 }
 
-@if (!joined)
+@if (_currentPlayer == null || GameState?.Players.Select(x => x.Id).Contains(_currentPlayer.Id) == false)
 {
     <div class="form-group">
         <label>
@@ -49,8 +49,6 @@ else if(GameState.CardState != Orleans.CardState.Shown)
 
     [Parameter]
     public Guid Id { get; set; }
-
-    private bool joined = false;
     private string? userInput;
     //shared game state
     private IPokerGameGrain _game;
@@ -82,6 +80,7 @@ else if(GameState.CardState != Orleans.CardState.Shown)
         await base.OnInitializedAsync();
     }
 
+    //reacts to GameState changes by forcing UI refresh
     private async Task OnStateChanged(PokerGameState state)
     {
         GameState = state;
@@ -98,8 +97,6 @@ else if(GameState.CardState != Orleans.CardState.Shown)
         await _game.AddPlayer(newPlayer);
         
         _currentPlayer = newPlayer;
-        
-        joined = true;
     }
 
     public async ValueTask DisposeAsync()

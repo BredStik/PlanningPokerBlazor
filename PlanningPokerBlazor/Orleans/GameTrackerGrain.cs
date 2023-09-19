@@ -13,7 +13,7 @@ public interface IGameTrackerGrain : IGrainWithStringKey, IDisposable
 public class GameTrackerGrain: Grain<GameTrackerState>, IGameTrackerGrain
 {
     private const int MAX_NUMBER_OF_GAMES = 50;
-    private const int MAX_INACTIVE_MINUTES_BEFORE_REMOVAL = 15;
+    private const int MAX_INACTIVE_MINUTES_BEFORE_REMOVAL = 2;
     
     private readonly ILogger<GameTrackerGrain> _logger;
     private readonly IGrainFactory _grainFactory;
